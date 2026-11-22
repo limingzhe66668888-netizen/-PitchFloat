@@ -3,6 +3,38 @@
 看视频（B站等）时，以悬浮窗实时显示视频里**歌声的音高**：当前音符、频率、
 音分偏差、滚动的音高曲线。适合跟唱练习、视唱训练、"这个音到底多高"的即时解答。
 
+## ⬇️ 直接下载安装（不想折腾开发环境）
+
+**[点此下载 PitchFloat.apk](../../releases/latest)**（约 37KB，Android 10 及以上）
+
+安装步骤：
+
+1. 手机上打开上面的下载链接（或先下到电脑再传到手机）
+2. 点击 APK 安装 → 若提示"禁止安装未知应用"，在弹窗里选"设置"并允许本来源
+3. 打开「悬浮音高」App
+4. 点 **① 授予悬浮窗权限** → 系统设置里允许"显示在其他应用上层"
+5. 声音来源选 **内录（视频声音）** → 点 **③ 开始** → 系统弹窗选 **立即开始**
+   （只采集音频做分析，不录屏、不保存任何声音）
+6. 切到 B站 播放视频，悬浮窗就会出现音高曲线
+7. 悬浮窗操作：**左半边拖动**=移动位置；**右半边上下拖**=滚动音域；**右上角 ✕**=关闭
+
+> 曲线不动且底部电平条为 0？说明该视频 App 禁止了内录（YouTube、部分音乐 App），
+> 请改选「麦克风」模式并**外放**声音，任何 App 都适用（戴耳机时无效）。
+
+## 自己构建
+
+需要 JDK 17 + Android SDK（`platforms;android-35`、`build-tools;35.0.0`），
+**不需要** Android Studio 或 Gradle：
+
+```bash
+ANDROID_SDK=/path/to/sdk ./build.sh      # 产物 PitchFloat.apk
+```
+
+详见下方「构建」章节。
+
+---
+
+
 ## 特性
 
 - **内部录音**（AudioPlaybackCapture）：直接采集正在播放的媒体声音——不录屏、
@@ -65,3 +97,33 @@ java -cp build/test com.pitchfloat.TestIsolator
 ## 许可
 
 MIT（见 LICENSE）。测试用的合成信号与算法实现均为本项目原创。
+
+---
+
+## English quick start
+
+**PitchFloat** shows the pitch of the singing voice in the video you're watching,
+in a small floating overlay — note name, frequency, cents deviation, and a rolling
+pitch curve. Built for singing practice and ear training on Android 10+.
+
+**Install (no build needed):** download `PitchFloat.apk` from
+[Releases](../../releases/latest), install it, grant the "display over other apps"
+permission, choose **Internal audio capture**, tap **Start**, and approve the
+system dialog (audio only — nothing is recorded or saved). Then play a video in
+any capture-allowed app (e.g. Bilibili).
+
+**Notes**
+- Apps that block playback capture (YouTube, most music apps) show a flat meter —
+  switch to **Microphone** mode and play the audio out loud instead.
+- Overlay controls: drag the **left half** to move it; drag the **right half**
+  up/down to scroll the pitch range; tap **✕** to close.
+
+**Pipeline:** stereo playback capture → center-channel vocal isolation
+(`|C| = max(0, |Mid| − β|Side|)`, the Audacity-style approach) → 105 Hz high-pass
+→ YIN with sub-octave arbitration → vocal trajectory tracker (slew-rate limiting,
+jump gating, median filtering) → overlay at ~43 fps.
+
+**Build:** JDK 17 + Android SDK (`platforms;android-35`, `build-tools;35.0.0`),
+no Gradle or Android Studio needed: `ANDROID_SDK=/path/to/sdk ./build.sh`.
+
+MIT licensed.
