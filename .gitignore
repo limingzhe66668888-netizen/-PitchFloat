@@ -1,0 +1,6 @@
+build/
+*.apk
+debug.keystore
+sdk/
+jdk/
+__pycache__/
