@@ -4,3 +4,4 @@ debug.keystore
 sdk/
 jdk/
 __pycache__/
+*.idsig
